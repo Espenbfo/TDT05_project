@@ -1,3 +1,6 @@
 torch
 torchvision
 numpy
+Pillow
+black
+tqd
