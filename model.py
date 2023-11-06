@@ -10,10 +10,9 @@ from torchvision.models import resnet50
 class ResNetPlus(nn.Module):
     def __init__(self, output_dim: int = 2048, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.resnet = nn.Sequential(
-            *list(resnet50(weights=None, **kwargs).children())[:-1]
-        )
-
+        self.resnet = resnet50(weights=None, **kwargs)
+        self.resnet.fc = torch.nn.Identity()
+        
         self.predictor = nn.Sequential(
             nn.Linear(2048, 512),
             nn.ReLU(),
