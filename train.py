@@ -37,7 +37,7 @@ def main():
             p1, p2 = model.predictor(z1), model.predictor(z2)  # predictions, n-by-d
 
             z1_no_grad, z2_no_grad = z1.detach(), z2.detach()
-            loss = (ssl_loss_criterion(z1_no_grad, p2) + ssl_loss_criterion(
+            loss = -(ssl_loss_criterion(z1_no_grad, p2) + ssl_loss_criterion(
                 z2_no_grad, p1
             )).mean()
 
