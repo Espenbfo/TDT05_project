@@ -39,15 +39,14 @@ def main():
     print(f"Running on device: {device}")
     model: torch.nn.Module = get_model()
     optimizer = torch.optim.Adam(model.parameters(), LEARNING_RATE)
-    dataloader = get_dataloader()
+    dataset = get_dataset()
+    dataloader_train, dataloader_val, dataloader_test = get_dataloaders()
     ssl_loss_criterion = torch.nn.CosineSimilarity()
-    transforms: Callable = get_transforms()
-
     for epoch in range(EPOCHS):
+        total_loss = 0
         print(f"Epoch {epoch + 1}")
-        for index, batch in (pbar := enumerate(dataloader)):
-            x1, x2 = transforms(batch), transforms(batch)  # random augmentation
-            x1, x2 = x1.to(device), x2.to(device)
+        for index, batch in (pbar := enumerate(dataloader_train)):
+            x1, x2 = batch.to(device)
 
             z1, z2 = model.resnet(x1), model.resnet(x2)  # projections, n-by-d
             p1, p2 = model.predictor(z1), model.predictor(z2)  # predictions, n-by-d
