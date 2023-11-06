@@ -25,6 +25,7 @@ class Transforms:
             transforms.RandomResizedCrop((224, 224)),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
-            transforms.RandomGrayscale(),
+            transforms.RandomGrayscale(0.2),
+            transforms.ToTensor(),
         ]
     )
