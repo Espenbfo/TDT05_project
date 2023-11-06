@@ -3,8 +3,7 @@ from typing import Callable
 import torch
 from torch.utils.data import DataLoader
 
-from .data import Animals10
-from .data import Transforms
+from .data import Animals10, Transforms
 from .model import ResNetPlus
 
 # TODO: better config? Maybe not necessary
@@ -33,15 +32,25 @@ def main():
     model: torch.nn.Module = get_model()
     optimizer = torch.optim.Adam(model.parameters(), LEARNING_RATE)
     dataloader = get_dataloader()
-    z1, z2 = model.resnet(x1), model.resnet(x2)  # projections, n-by-d
-    p1, p2 = model.predictor(z1), model.predictor(z2)  # predictions, n-by-d
-    z1_no_grad, z2_no_grad = z1.detach(), z2.detach()
-    loss = ssl_loss_criterion(z1_no_grad, p2) + ssl_loss_criterion(
-    z2_no_grad, p1
-    loss.backward()
-    optimizer.step()
-    optimizer.zero_grad()
-    
+    ssl_loss_criterion = torch.nn.CosineSimilarity()
+    transforms: Callable = get_transforms()
+    for epoch in range(EPOCHS):
+        print(f"Epoch {epoch + 1}")
+        for index, batch in (pbar := enumerate(dataloader)):
+            batch = batch.to(device)
+            x1, x2 = transforms(batch), transforms(batch)  # random augmentation
+
+            z1, z2 = model.resnet(x1), model.resnet(x2)  # projections, n-by-d
+            p1, p2 = model.predictor(z1), model.predictor(z2)  # predictions, n-by-d
+
+            z1_no_grad, z2_no_grad = z1.detach(), z2.detach()
+            loss = ssl_loss_criterion(z1_no_grad, p2) + ssl_loss_criterion(
+                z2_no_grad, p1
+            )
+
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
 
 
 if __name__ == "__main__":
