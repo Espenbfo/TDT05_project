@@ -29,7 +29,9 @@ def main():
     for epoch in range(EPOCHS):
         total_loss = 0
         print(f"Epoch {epoch + 1}")
-        for index, batch in (pbar := tqdm(enumerate(dataloader_train))):
+        for index, batch in (
+            pbar := tqdm(enumerate(dataloader_train), total=len(dataloader_train))
+        ):
             x1, x2 = batch
             x1, x2 = x1.to(device), x2.to(device)
 
@@ -37,9 +39,13 @@ def main():
             p1, p2 = model.predictor(z1), model.predictor(z2)  # predictions, n-by-d
 
             z1_no_grad, z2_no_grad = z1.detach(), z2.detach()
-            loss = -(ssl_loss_criterion(z1_no_grad, p2) + ssl_loss_criterion(
-                z2_no_grad, p1
-            )).mean()
+            loss = -(
+                (
+                    ssl_loss_criterion(z1_no_grad, p2)
+                    + ssl_loss_criterion(z2_no_grad, p1)
+                )
+                / 2
+            ).mean()
 
             loss.backward()
             optimizer.step()
