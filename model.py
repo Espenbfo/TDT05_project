@@ -25,10 +25,7 @@ class ResNetPlus(nn.Module):
             nn.Linear(2048, 512),
             nn.ReLU(),
             nn.BatchNorm1d(512),
-            nn.Linear(512, 128),
-            nn.ReLU(),
-            nn.BatchNorm1d(128),
-            nn.Linear(128, output_dim),
+            nn.Linear(512, output_dim),
         )
 
     def save_resnet(self, path="resnet-50.pt"):
