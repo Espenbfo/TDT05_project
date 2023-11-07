@@ -7,12 +7,11 @@ from data import get_dataloaders, get_dataset
 from model import ResNetPlus
 
 # TODO: better config? Maybe not necessary
-LEARNING_RATE = 1e-4
-EPOCHS = 10
+LEARNING_RATE = 5e-2
+EPOCHS = 50
 WEIGHTS_FOLDER = Path("./weights")
 IMAGES_PATH = "./.data/raw-img"
-BATCH_SIZE = 8
-
+BATCH_SIZE = 32
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -23,7 +22,8 @@ def main():
     print(f"Running on device: {device}")
 
     model: torch.nn.Module = ResNetPlus().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), LEARNING_RATE)
+    optimizer = torch.optim.SGD(model.parameters(), LEARNING_RATE*BATCH_SIZE/256, weight_decay=1e-4, momentum=0.9)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, EPOCHS, LEARNING_RATE*BATCH_SIZE/(256*100))
     dataset = get_dataset(IMAGES_PATH)
     dataloader_train, dataloader_val, dataloader_test = get_dataloaders(
         dataset, batch_size=BATCH_SIZE
@@ -38,7 +38,7 @@ def main():
             x1, x2 = batch
             x1, x2 = x1.to(device), x2.to(device)
 
-            z1, z2 = model.resnet(x1), model.resnet(x2)  # projections, n-by-d
+            z1, z2 = model.f(x1), model.f(x2)  # projections, n-by-d
             p1, p2 = model.predictor(z1), model.predictor(z2)  # predictions, n-by-d
 
             z1_no_grad, z2_no_grad = z1.detach(), z2.detach()
@@ -52,6 +52,7 @@ def main():
 
             loss.backward()
             optimizer.step()
+            scheduler.step()
             optimizer.zero_grad()
             total_loss += loss.detach().cpu()
             pbar.set_postfix_str(

@@ -12,12 +12,22 @@ class ResNetPlus(nn.Module):
         super().__init__(*args, **kwargs)
         self.resnet = resnet50(weights=None, **kwargs)
         self.resnet.fc = torch.nn.Identity()
+        self.f = nn.Sequential(self.resnet,
+                               nn.Linear(2048, 2048),
+                               nn.ReLU(),
+                               nn.BatchNorm1d(2048),
+                               nn.Linear(2048, 2048),
+                               nn.ReLU(),
+                               nn.BatchNorm1d(2048),
+                               nn.Linear(2048, 2048))
         
         self.predictor = nn.Sequential(
             nn.Linear(2048, 512),
             nn.ReLU(),
+            nn.BatchNorm1d(512),
             nn.Linear(512, 128),
             nn.ReLU(),
+            nn.BatchNorm1d(128),
             nn.Linear(128, output_dim),
         )
 
@@ -25,10 +35,10 @@ class ResNetPlus(nn.Module):
         torch.save(self.resnet, path)
 
     def forward(self, x_1, x_2, use_predictor: bool = True):
-        x_1 = self.resnet(x_1)
+        x_1 = self.f(x_1)
         if use_predictor is not None:
             x_1 = self.predictor(x_1)
-        x_2 = self.resnet(x_2)
+        x_2 = self.f(x_2)
         return x_1, x_2
 
 
