@@ -11,6 +11,7 @@ LEARNING_RATE = 1e-4
 EPOCHS = 10
 WEIGHTS_FOLDER = Path("./weights")
 IMAGES_PATH = "./.data/raw-img"
+BATCH_SIZE = 8
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -24,7 +25,9 @@ def main():
     model: torch.nn.Module = ResNetPlus().to(device)
     optimizer = torch.optim.Adam(model.parameters(), LEARNING_RATE)
     dataset = get_dataset(IMAGES_PATH)
-    dataloader_train, dataloader_val, dataloader_test = get_dataloaders(dataset)
+    dataloader_train, dataloader_val, dataloader_test = get_dataloaders(
+        dataset, batch_size=BATCH_SIZE
+    )
     ssl_loss_criterion = torch.nn.CosineSimilarity()
     for epoch in range(EPOCHS):
         total_loss = 0
