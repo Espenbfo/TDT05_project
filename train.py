@@ -8,7 +8,7 @@ from model import ResNetPlus
 
 # TODO: better config? Maybe not necessary
 LEARNING_RATE = 5e-2
-EPOCHS = 50
+EPOCHS = 100
 WEIGHTS_FOLDER = Path("./weights")
 IMAGES_PATH = "./.data/raw-img"
 BATCH_SIZE = 32
@@ -23,7 +23,7 @@ def main():
 
     model: torch.nn.Module = ResNetPlus().to(device)
     optimizer = torch.optim.SGD(model.parameters(), LEARNING_RATE*BATCH_SIZE/256, weight_decay=1e-4, momentum=0.9)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, EPOCHS, LEARNING_RATE*BATCH_SIZE/(256*100))
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, EPOCHS)
     dataset = get_dataset(IMAGES_PATH)
     dataloader_train, dataloader_val, dataloader_test = get_dataloaders(
         dataset, batch_size=BATCH_SIZE
