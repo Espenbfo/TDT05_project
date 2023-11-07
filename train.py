@@ -52,9 +52,9 @@ def main():
             optimizer.zero_grad()
             total_loss += loss.detach().cpu()
             pbar.set_postfix_str(
-                f"current average loss this epoch {total_loss/(index+1)}"
+                f"average loss {total_loss/(index+1):.3f}, batch std {torch.nn.functional.normalize(z1, dim=1).std(dim=0).mean():.4f}"
             )
-    model.save_resnet((WEIGHTS_FOLDER / "weights.pt").as_posix())
+        model.save_resnet((WEIGHTS_FOLDER / "weights.pt").as_posix())
 
 
 if __name__ == "__main__":
