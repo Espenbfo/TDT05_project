@@ -17,3 +17,10 @@ pip install -r requirements.txt
 
 Cat breeds image dataset: https://www.kaggle.com/datasets/shawngano/gano-cat-breed-image-collection 
 
+#### Todo:
+* Create training loop for supervised classification
+* Train supervised model from scratch
+* Load backbone weights and freeze resnet & train model
+* Compare performance
+* ??
+* profit
