@@ -3,7 +3,7 @@ from pathlib import Path
 import torch
 from tqdm import tqdm
 
-from data import get_dataloaders, get_dataset
+from data import get_dataloaders, get_dataset_ssl
 from model import ResNetPlus
 
 # TODO: better config? Maybe not necessary
@@ -22,9 +22,16 @@ def main():
     print(f"Running on device: {device}")
 
     model: torch.nn.Module = ResNetPlus().to(device)
-    optimizer = torch.optim.SGD(model.parameters(), LEARNING_RATE*BATCH_SIZE/256, weight_decay=1e-4, momentum=0.9)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, EPOCHS, LEARNING_RATE*BATCH_SIZE/(256*100))
-    dataset = get_dataset(IMAGES_PATH)
+    optimizer = torch.optim.SGD(
+        model.parameters(),
+        LEARNING_RATE * BATCH_SIZE / 256,
+        weight_decay=1e-4,
+        momentum=0.9,
+    )
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, EPOCHS, LEARNING_RATE * BATCH_SIZE / (256 * 100)
+    )
+    dataset = get_dataset_ssl(IMAGES_PATH)
     dataloader_train, dataloader_val, dataloader_test = get_dataloaders(
         dataset, batch_size=BATCH_SIZE
     )
@@ -58,7 +65,7 @@ def main():
             pbar.set_postfix_str(
                 f"average loss {total_loss/(index+1):.3f}, batch std {torch.nn.functional.normalize(z1, dim=1).std(dim=0).mean():.4f}"
             )
-        model.save_resnet((WEIGHTS_FOLDER / "weights.pt").as_posix())
+        model.save_resnet((WEIGHTS_FOLDER / "weights_ssl.pt").as_posix())
 
 
 if __name__ == "__main__":

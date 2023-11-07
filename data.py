@@ -21,11 +21,18 @@ class ImageDataset(Dataset):
         return x1, x2
 
 
-def get_dataset(path: str):
+def get_dataset_ssl(path: str):
     parent_folder = Path(path).resolve().as_posix()
     image_dataset = ImageFolder(parent_folder)
     trans = _get_transforms()
     return ImageDataset(image_dataset, trans)
+
+
+def get_dataset_supervised(path: str):
+    parent_folder = Path(path).resolve().as_posix()
+    trans = _get_transforms_supervised()
+
+    return ImageFolder(parent_folder, trans)
 
 
 def get_dataloaders(dataset: Dataset, batch_size=32, shuffle=True, num_workers=4):
@@ -50,6 +57,15 @@ def _get_transforms():
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
             transforms.RandomGrayscale(0.2),
+            transforms.ToTensor(),
+        ]
+    )
+
+
+def _get_transforms_supervised():
+    return transforms.Compose(
+        [
+            transforms.Resize((224, 224)),
             transforms.ToTensor(),
         ]
     )
