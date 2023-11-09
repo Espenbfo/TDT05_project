@@ -8,11 +8,12 @@ from model import ResNetPlus
 
 # TODO: better config? Maybe not necessary
 LEARNING_RATE = 5e-2
-EPOCHS = 100
+EPOCHS = 150
 WEIGHTS_FOLDER = Path("./weights")
 IMAGES_PATH = "./.data/raw-img"
 BATCH_SIZE = 32
-
+LOAD_WEIGHTS = True
+RESNET_WEIGHTS="/weights_ssl.pt"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -22,6 +23,8 @@ def main():
     print(f"Running on device: {device}")
 
     model: torch.nn.Module = ResNetPlus().to(device)
+    if LOAD_WEIGHTS:
+        model.load_resnet((WEIGHTS_FOLDER / RESNET_WEIGHTS))
     optimizer = torch.optim.SGD(
         model.parameters(),
         LEARNING_RATE * BATCH_SIZE / 256,
@@ -29,7 +32,7 @@ def main():
         momentum=0.9,
     )
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, EPOCHS, LEARNING_RATE * BATCH_SIZE / (256 * 100)
+        optimizer, EPOCHS
     )
     dataset = get_dataset_ssl(IMAGES_PATH)
     dataloader_train, dataloader_val, dataloader_test = get_dataloaders(
@@ -65,7 +68,7 @@ def main():
             pbar.set_postfix_str(
                 f"average loss {total_loss/(index+1):.3f}, batch std {torch.nn.functional.normalize(z1, dim=1).std(dim=0).mean():.4f}"
             )
-        model.save_resnet((WEIGHTS_FOLDER / "weights_ssl.pt").as_posix())
+        model.save_resnet((WEIGHTS_FOLDER / "weights_ssl_cont.pt").as_posix())
 
 
 if __name__ == "__main__":

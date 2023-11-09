@@ -42,10 +42,10 @@ class ResNetPlus(nn.Module):
             )
 
     def save_resnet(self, path="resnet-50.pt"):
-        torch.save(self.resnet.state_dict, path)
+        torch.save(self.resnet.state_dict(), path)
 
     def load_resnet(self, path):
-        self.resnet.load_state_dict(path)
+        self.resnet.load_state_dict(torch.load(path))
 
     def forward(self, x):
         assert self.is_classifier
