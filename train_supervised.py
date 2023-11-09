@@ -17,6 +17,7 @@ IMAGES_PATH = ".data_sv/"
 BATCH_SIZE = 64
 FREEZE_BACKBONE = True
 LOAD_BACKBONE_WEIGHTS = True
+SAVE_NAME="weights_supervised.pt"
 BACKBONE_WEIGHT_PATH = Path(WEIGHTS_FOLDER / "weights_ssl.pt")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -73,7 +74,7 @@ def main():
         val_loss = test_val(model, dataloader_val, loss_criterion, "Validation")
         if val_loss <= best_loss:
             best_loss = val_loss
-            model.save_resnet((WEIGHTS_FOLDER / "weights_supervised.pt").as_posix())
+            model.save_resnet((WEIGHTS_FOLDER / SAVE_NAME).as_posix())
         print("\n")
     test_val(model, dataloader_test, loss_criterion, "Test")
 
