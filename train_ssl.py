@@ -8,13 +8,13 @@ from model import ResNetPlus
 
 # TODO: better config? Maybe not necessary
 LEARNING_RATE = 5e-2
-EPOCHS = 150
+EPOCHS = 30
 WEIGHTS_FOLDER = Path("./weights")
 IMAGES_PATH = "./.data/raw-img"
 BATCH_SIZE = 32
 LOAD_WEIGHTS = True
-RESNET_WEIGHTS="/weights_ssl.pt"
-SAVE_NAME="weights_ssl_cont.pt"
+RESNET_WEIGHTS="weights_ssl_cont.pt"
+SAVE_NAME="weights_ssl_cont_2.pt"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -63,12 +63,12 @@ def main():
 
             loss.backward()
             optimizer.step()
-            scheduler.step()
             optimizer.zero_grad()
             total_loss += loss.detach().cpu()
             pbar.set_postfix_str(
                 f"average loss {total_loss/(index+1):.3f}, batch std {torch.nn.functional.normalize(z1, dim=1).std(dim=0).mean():.4f}"
             )
+        scheduler.step()
         model.save_resnet((WEIGHTS_FOLDER / SAVE_NAME).as_posix())
 
 

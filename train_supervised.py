@@ -15,10 +15,10 @@ EPOCHS = 500
 WEIGHTS_FOLDER = Path("./weights")
 IMAGES_PATH = ".data_sv/"
 BATCH_SIZE = 64
-FREEZE_BACKBONE = True
+FREEZE_BACKBONE = not True
 LOAD_BACKBONE_WEIGHTS = True
 SAVE_NAME="weights_supervised.pt"
-BACKBONE_WEIGHT_PATH = Path(WEIGHTS_FOLDER / "weights_ssl.pt")
+BACKBONE_WEIGHT_PATH = Path(WEIGHTS_FOLDER / "weights_ssl_cont.pt")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
