@@ -14,6 +14,7 @@ IMAGES_PATH = "./.data/raw-img"
 BATCH_SIZE = 32
 LOAD_WEIGHTS = True
 RESNET_WEIGHTS="/weights_ssl.pt"
+SAVE_NAME="weights_ssl_cont.pt"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -68,7 +69,7 @@ def main():
             pbar.set_postfix_str(
                 f"average loss {total_loss/(index+1):.3f}, batch std {torch.nn.functional.normalize(z1, dim=1).std(dim=0).mean():.4f}"
             )
-        model.save_resnet((WEIGHTS_FOLDER / "weights_ssl_cont.pt").as_posix())
+        model.save_resnet((WEIGHTS_FOLDER / SAVE_NAME).as_posix())
 
 
 if __name__ == "__main__":
