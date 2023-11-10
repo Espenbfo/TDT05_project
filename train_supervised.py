@@ -18,7 +18,7 @@ BATCH_SIZE = 64
 FREEZE_BACKBONE = not True
 LOAD_BACKBONE_WEIGHTS = True
 SAVE_NAME="weights_supervised.pt"
-BACKBONE_WEIGHT_PATH = Path(WEIGHTS_FOLDER / "weights_ssl_cont.pt")
+BACKBONE_WEIGHT_PATH = Path(WEIGHTS_FOLDER / "weights_ssl_cont_2.pt")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -34,15 +34,24 @@ def main():
 
     if LOAD_BACKBONE_WEIGHTS:
         model.load_resnet(BACKBONE_WEIGHT_PATH)
+        optimizer = torch.optim.Adam(
+            model.classifier_head.parameters(),
+            LEARNING_RATE,
+        )
+        optimizer_bb = torch.optim.Adam(
+            model.resnet.parameters(),
+            LEARNING_RATE ,
+        )
+    else:
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            LEARNING_RATE,
+        )
     if FREEZE_BACKBONE:
         model.resnet.eval()
         for param in model.resnet.parameters():
             param.requires_grad = False
 
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        LEARNING_RATE,
-    )
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, EPOCHS, LEARNING_RATE*BATCH_SIZE/(256*100))
     dataloader_train, dataloader_val, dataloader_test = get_dataloaders(
         dataset, batch_size=BATCH_SIZE
@@ -63,6 +72,9 @@ def main():
             loss.backward()
             optimizer.step()
             # scheduler.step()
+            if LOAD_BACKBONE_WEIGHTS:
+                optimizer_bb.step()
+                optimizer_bb.zero_grad()
             optimizer.zero_grad()
             total_loss += loss.detach().cpu()
             total_acc += (

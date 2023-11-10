@@ -67,6 +67,9 @@ def _get_transforms_supervised():
     return transforms.Compose(
         [
             transforms.Resize((224, 224)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(5),
+            transforms.ColorJitter(0.2, 0.2, 0.2, 0.1),
             transforms.ToTensor(),
         ]
     )
