@@ -53,6 +53,7 @@ def _get_transforms():
     return transforms.Compose(
         [
             transforms.RandomResizedCrop((224, 224)),
+            transforms.GaussianBlur(5),
             transforms.ColorJitter(0.4, 0.4, 0.4, 0.1),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),

@@ -31,34 +31,28 @@ class ResNetPlus(nn.Module):
                 nn.Linear(2048, 512),
                 nn.ReLU(),
                 nn.BatchNorm1d(512),
-                nn.Linear(512, 128),
-                nn.ReLU(),
-                nn.BatchNorm1d(128),
-                nn.Linear(128, output_dim),
+                nn.Linear(512, output_dim),
             )
         else:
             self.classifier_head = nn.Sequential(
                 nn.Linear(2048, 512),
                 nn.ReLU(),
                 nn.BatchNorm1d(512),
-                nn.Linear(512, 128),
-                nn.ReLU(),
-                nn.BatchNorm1d(128),
-                nn.Linear(128, output_dim),
+                nn.Linear(512, output_dim),
             )
 
     def save_resnet(self, path="resnet-50.pt"):
-        torch.save(self.resnet.state_dict, path)
+        torch.save(self.resnet.state_dict(), path)
 
     def load_resnet(self, path):
-        self.resnet.load_state_dict(path)
+        self.resnet.load_state_dict(torch.load(path))
 
     def forward(self, x):
         assert self.is_classifier
         x = self.resnet(x)
         x = self.classifier_head(x)
         return x
-            
+
 
 
 def main():
